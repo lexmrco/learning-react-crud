@@ -2,7 +2,6 @@ import React,{ Fragment, useState} from 'react';
 import { Alert, Form, Input, Button, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import AxiosClient from '../../config/axios'
-import axiosClient from '../../config/axios';
 
 const LoginForm = (props) => {
     const [account, setAccount] = useState({ 
@@ -21,9 +20,8 @@ const LoginForm = (props) => {
     }
 
     const login = async () => { 
-        console.log(props.history);
         try {
-            const response = await axiosClient.post('api/auth/login', account);
+            const response = await AxiosClient.post('api/auth/login', account);
             props.history.push('/customers');
         } catch (error) {
             setError(error.response.data.message);
