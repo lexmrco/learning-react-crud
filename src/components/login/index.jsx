@@ -1,21 +1,45 @@
 import React,{ Fragment, useState} from 'react';
 import { Alert, Form, Input, Button, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import AxiosClient from '../../config/axios'
+import axiosClient from '../../config/axios';
 
-const LoginForm = () => {
-    const [userName, setUserName] = useState('')
-    const [password, setPassword] = useState('')
-    const [remember, setRemember] = useState(true)
+const LoginForm = (props) => {
+    const [account, setAccount] = useState({ 
+        userName: '', 
+        password: ''
+    })
+    const { userName, password } = account;
 
-    const login = user =>{ console.log(user)};
+    const [error, setError] = useState('')
 
-    const error = ''
-    console.log(error);
+    const onChangeHandle = e => {
+        setAccount({
+            ...account,
+            [e.target.name] : e.target.value
+        });
+    }
+
+    const login = async () => { 
+        console.log(props.history);
+        try {
+            const response = await axiosClient.post('api/auth/login', account);
+            props.history.push('/customers');
+        } catch (error) {
+            setError(error.response.data.message);
+        }
+    };
+
 
     const onFinish = e => {
-        login({userName, password, remember});
-      };
-  return (
+        login();
+    };
+
+    const onFinishFailed = e => {
+        console.log('Error en el login');
+    };
+
+    return (
     <Fragment>
         <div className="wrapper">
             <div className="form-wrapper">      
@@ -27,12 +51,12 @@ const LoginForm = () => {
                         remember: true,
                     }}
                     onFinish={onFinish}
-                    //onSubmit={onSubmit}
+                    onFinishFailed={onFinishFailed}
                 >
                 <Form.Item
                     name="userName"
                     value={userName}
-                    onChange={e => setUserName(e.target.value)}
+                    onChange={onChangeHandle}
                     rules={[
                     {
                         required: true,
@@ -40,12 +64,12 @@ const LoginForm = () => {
                     },
                     ]}
                 >
-                    <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Usuario" />
+                    <Input name="userName" prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Usuario" />
                 </Form.Item>
                 <Form.Item
                     name="password"
                     value={password}
-                    onChange={e => setPassword(e.target.value)}
+                    onChange={onChangeHandle}
                     rules={[
                     {
                         required: true,
@@ -54,25 +78,14 @@ const LoginForm = () => {
                     ]}
                 >
                     <Input.Password 
-                    prefix={<LockOutlined className="site-form-item-icon" />}
-                    placeholder="Contraseña"
+                        name="password"
+                        prefix={<LockOutlined className="site-form-item-icon" />}
+                        placeholder="Contraseña"
                     />
                 </Form.Item>
                 <Form.Item>
-                    <Form.Item 
-                    name="remember" 
-                    value={remember}
-                    noStyle>
-                    <Checkbox checked={remember} onChange={e => setRemember(Boolean(e.target.checked))}>Recordar</Checkbox>
-                    </Form.Item>
-
-                    <a className="login-form-forgot" href="">
-                    Olvidó su contraseña
-                    </a>
-                </Form.Item>
-                <Form.Item>
-                    <Button type="primary" htmlType="submit" className="login-form-button">
-                    Iniciar sesión
+                    <Button type="primary" htmlType="submit" className="login-form-button" block>
+                        Iniciar sesión
                     </Button>
                     <a href="/register"> Registrarse!</a>
                 </Form.Item>
